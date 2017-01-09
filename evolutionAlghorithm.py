@@ -17,7 +17,7 @@ def prepareU():
         sum_u.append(sum(randomNumbers))
 
 def calculateVariables():
-    prepareVariablesAndU()
+    prepareU()
     for i in range(0,ilosc):
         for k in range(0,N-1):
             x1[i][k+1] = x2[i][k]
@@ -26,4 +26,4 @@ def calculateVariables():
 
 calculateVariables()
 
-
+print "tak"
