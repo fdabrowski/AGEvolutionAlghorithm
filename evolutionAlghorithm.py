@@ -12,6 +12,7 @@ distribution = []
 parents = []
 childs = [[] for i in xrange(ilosc)]
 
+
 def prepareU():
     for i in range(0,ilosc):
         randomNumbers = []
@@ -23,7 +24,6 @@ def prepareU():
         sum_u.append(sum(randomNumbersPower))
 
 def calculateVariables():
-    prepareU()
     for i in range(0,ilosc):
         for k in range(0,N-1):
             x1[i][k+1] = x2[i][k]
@@ -34,7 +34,9 @@ def calculateVariables():
         adaptation.append(J[i]/sum_J)
         distribution.append(sum(adaptation))
 
+
 def roulette():
+    del parents[:]
     for i in range(0,ilosc):
         r = random.uniform(0,1)
         for j in xrange(len(distribution)):
@@ -43,6 +45,7 @@ def roulette():
                 break
 
 def crossover():
+    childs = [[] for i in xrange(ilosc)]
     for i in xrange(len(parents)/2):
         for j in range(0,int(N/3)):
             childs[2*i].append(parents[2*i][j])
@@ -50,10 +53,21 @@ def crossover():
         for j in range(int(N/3),N):
             childs[2*i].append(parents[2*i+1][j])
             childs[2*i+1].append(parents[2*i][j])
+    return childs
 
-calculateVariables()
-roulette()
-crossover()
+def run():
+    prepareU()
+    for i in range(0, 10):
+        calculateVariables()
+        roulette()
+        childs = crossover()
+        u = childs
+        #del sum_u[:]
+        print childs[1]
 
-print "tak"
+
+#calculateVariables()
+#roulette()
+#crossover()
+run()
 print childs[1]
