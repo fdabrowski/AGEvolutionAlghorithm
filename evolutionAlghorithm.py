@@ -1,5 +1,4 @@
 import random
-import numpy as np
 import matplotlib.pyplot as plt
 
 N = 10
@@ -20,7 +19,15 @@ def prepareU():
     for i in range(0,ilosc):
         randomNumbers = []
         for x in range(0,N):
-            randomNumbers.append(random.uniform(0,10))
+            while True:
+                correct = True
+                randomNumber = random.randint(1,N)
+                for j in xrange(len(randomNumbers)):
+                    if randomNumber == randomNumbers[j]:
+                        correct = False
+                if correct:
+                    randomNumbers.append(randomNumber)
+                    break
         u.append(randomNumbers)
     return u
 
@@ -37,9 +44,9 @@ def calculateVariables(u):
             uPower.append(u[i][j]**2)
         for k in range(0,N-1):
             x1[i][k+1] = x2[i][k]
-            x2[i][k+1] = 2*x2[i][k]-x1[i][k]+ u[i][k]/(N**2)
+            x2[i][k+1] = 2*x2[i][k]-x1[i][k]+ float(u[i][k])/float((N**2))
         sum_u.append(sum(uPower))
-        J.append(x1[i][N-1]-(1/(2*N))*sum_u[i])
+        J.append(x1[i][N-1]-(1/float(2*N))*sum_u[i])
     sum_J = sum(J)
     for i in xrange(len(J)):
         adaptation.append(J[i]/sum_J)
@@ -78,8 +85,4 @@ def run():
     plt.show()
 
 
-#calculateVariables()
-#roulette()
-#crossover()
 run()
-#print childs[1]
