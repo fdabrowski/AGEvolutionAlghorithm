@@ -1,4 +1,6 @@
 import random
+import numpy as np
+import matplotlib.pyplot as plt
 
 N = 10
 ilosc = 100
@@ -11,30 +13,41 @@ adaptation = []
 distribution = []
 parents = []
 childs = [[] for i in xrange(ilosc)]
+Jmax = []
+
 
 def prepareU():
     for i in range(0,ilosc):
         randomNumbers = []
-        randomNumbersPower = []
         for x in range(0,N):
             randomNumbers.append(random.uniform(0,10))
-            randomNumbersPower.append(randomNumbers[x]**2)
         u.append(randomNumbers)
-        sum_u.append(sum(randomNumbersPower))
+    return u
 
-def calculateVariables():
-    prepareU()
+def calculateVariables(u):
+    x1 = [[0 for i in xrange(N)] for i in xrange(ilosc)]
+    x2 = [[0 for i in xrange(N)] for i in xrange(ilosc)]
+    del J[:]
+    del sum_u[:]
+    del adaptation[:]
+    del distribution[:]
     for i in range(0,ilosc):
+        uPower = []
+        for j in range(0,N):
+            uPower.append(u[i][j]**2)
         for k in range(0,N-1):
             x1[i][k+1] = x2[i][k]
             x2[i][k+1] = 2*x2[i][k]-x1[i][k]+ u[i][k]/(N**2)
+        sum_u.append(sum(uPower))
         J.append(x1[i][N-1]-(1/(2*N))*sum_u[i])
     sum_J = sum(J)
     for i in xrange(len(J)):
         adaptation.append(J[i]/sum_J)
         distribution.append(sum(adaptation))
 
+
 def roulette():
+    del parents[:]
     for i in range(0,ilosc):
         r = random.uniform(0,1)
         for j in xrange(len(distribution)):
@@ -43,6 +56,7 @@ def roulette():
                 break
 
 def crossover():
+    childs = [[] for i in xrange(ilosc)]
     for i in xrange(len(parents)/2):
         for j in range(0,int(N/3)):
             childs[2*i].append(parents[2*i][j])
@@ -50,10 +64,22 @@ def crossover():
         for j in range(int(N/3),N):
             childs[2*i].append(parents[2*i+1][j])
             childs[2*i+1].append(parents[2*i][j])
+    return childs
 
-calculateVariables()
-roulette()
-crossover()
+def run():
+    u = prepareU()
+    for i in range(0, 1000):
+        calculateVariables(u)
+        roulette()
+        childs = crossover()
+        u = childs
+        Jmax.append(max(J))
+    plt.plot(xrange(len(Jmax)),Jmax)
+    plt.show()
 
-print "tak"
-print childs[1]
+
+#calculateVariables()
+#roulette()
+#crossover()
+run()
+#print childs[1]
