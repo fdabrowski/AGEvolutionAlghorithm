@@ -3,48 +3,7 @@ import matplotlib.pyplot as plt
 
 N = 10
 ilosc = 100
-#x1 = [[0 for i in xrange(N)] for i in xrange(ilosc)]
-#x2 = [[0 for i in xrange(N)] for i in xrange(ilosc)]
-J = []
-sum_u = []
-adaptation = []
-distribution = []
 
-childs = [[] for i in xrange(ilosc)]
-Jmax = []
-
-
-def prepareU():
-    u = []
-    for i in range(0,ilosc):
-        randomNumbers = []
-        for x in range(0,N):
-            while True:
-                correct = True
-                randomNumber = random.randint(1,N)
-                for j in xrange(len(randomNumbers)):
-                    if randomNumber == randomNumbers[j]:
-                        correct = False
-                if correct:
-                    randomNumbers.append(randomNumber)
-                    break
-        u.append(randomNumbers)
-    return u
-
-import random
-import matplotlib.pyplot as plt
-
-N = 10
-ilosc = 100
-#x1 = [[0 for i in xrange(N)] for i in xrange(ilosc)]
-#x2 = [[0 for i in xrange(N)] for i in xrange(ilosc)]
-J = []
-sum_u = []
-adaptation = []
-distribution = []
-
-childs = [[] for i in xrange(ilosc)]
-Jmax = []
 
 
 def prepareU():
@@ -67,10 +26,10 @@ def prepareU():
 def calculateVariables(u):
     x1 = [[0 for i in xrange(N)] for i in xrange(ilosc)]
     x2 = [[0 for i in xrange(N)] for i in xrange(ilosc)]
-    del J[:]
-    del sum_u[:]
-    del adaptation[:]
-    del distribution[:]
+    J = []
+    sum_u = []
+    adaptation = []
+    distribution = []
     for i in range(0,ilosc):
         uPower = []
         for j in range(0,N):
@@ -88,11 +47,11 @@ def calculateVariables(u):
     for i in mod_J:
         adaptation.append(i / f)
         distribution.append(sum(adaptation))
+    return distribution, J
 
 
-def roulette(u):
+def roulette(u, distribution):
     parents = []
-    #del parents[:]
     for i in range(0,ilosc):
         r = random.uniform(0,1)
         for j in xrange(len(distribution)):
@@ -112,37 +71,125 @@ def crossover(parents):
             childs[2*i+1].append(parents[2*i][j])
     return childs
 
-def run():
-    u = prepareU()
-    parents = []
-    for i in range(0, 100):
-        calculateVariables(u)
-        parents = roulette(u)
-        childs = crossover(parents)
-        u = childs
-        Jmax.append(max(J))
-        print Jmax
-    plt.plot(xrange(len(Jmax)),Jmax)
-    plt.show()
+def inversion(chromosom):
+    chromosom_new = []
+    a = random.randint(0, N-1)
+    while True:
+        b = random.randint(0, N-1)
+        if b != a:
+            break
+    if b < a:
+        buf = a
+        a = b
+        b = buf
+    for i in range(0,a):
+        chromosom_new.append(chromosom[i])
+    iterator = 0
+    for i in range(a,b):
+        chromosom_new.append(chromosom[b-iterator])
+        iterator += 1
+    for i in range(b,N):
+        chromosom_new.append(chromosom[i])
+    return chromosom_new
 
+def inserting(chromosom):
+    chromosom_new = []
+    a = random.randint(0, N-1)
+    while True:
+        b = random.randint(0, N-1)
+        if b != a:
+            break
+    if b < a:
+        buf = a
+        a = b
+        b = buf
+    for i in range(0,a):
+        chromosom_new.append(chromosom[i])
+    for i in range(a,b):
+        chromosom_new.append(chromosom[i+1])
+    chromosom_new.append(chromosom[a])
+    for i in range(b+1,N):
+        chromosom_new.append(chromosom[i])
+    return chromosom_new
 
-run()
-print Jmax
+def transfer(chromosom):
+    chromosom_new = []
+    a = random.randint(0, N-1)
+    while True:
+        b = random.randint(0, N-1)
+        if b != a:
+            break
+    if b < a:
+        buf = a
+        a = b
+        b = buf
+    while True:
+        c = random.randint(0,N-1)
+        if (N-b) > c:
+            break
+    for i in range(0, a):
+        chromosom_new.append(chromosom[i])
+    for i in range(a, b):
+        chromosom_new.append(chromosom[i + c])
+    iterator = 0
+    for i in range(b, b+c):
+        chromosom_new.append(chromosom[a+iterator])
+        iterator += 1
+    for i in range(b+c, N):
+        chromosom_new.append(chromosom[i])
+    return chromosom_new
+
+def swap(chromosom):
+    chromosom_new = []
+    a = random.randint(0, N-1)
+    while True:
+        b = random.randint(0, N-1)
+        if b != a:
+            break
+    if b < a:
+        buf = a
+        a = b
+        b = buf
+    for i in range(0,a):
+        chromosom_new.append(chromosom[i])
+    chromosom_new.append(chromosom[b])
+    for i in range(a+1,b):
+        chromosom_new.append(chromosom[i])
+    chromosom_new.append(chromosom[a])
+    for i in range(b+1,N):
+        chromosom_new.append(chromosom[i])
+    return chromosom_new
+
+def mutation(parents):
+    childs = []
+    for i in xrange(len(parents)):
+        chromosom = parents[i]
+        x = random.randint(1,4)
+        if x == 1:
+            chromosom_new = inversion(chromosom)
+        elif x == 2:
+            chromosom_new = inserting(chromosom)
+        elif x == 3:
+            chromosom_new = transfer(chromosom)
+        elif x == 4:
+            chromosom_new = swap(chromosom)
+        childs.append(chromosom_new)
     return childs
 
+
 def run():
+    Jmax = []
     u = prepareU()
-    parents = []
     for i in range(0, 100):
-        calculateVariables(u)
-        parents = roulette(u)
+        distribution, J = calculateVariables(u)
+        parents = roulette(u, distribution)
         childs = crossover(parents)
-        u = childs
+        childs2 = mutation(childs)
+        u = childs2
         Jmax.append(max(J))
-        print Jmax
     plt.plot(xrange(len(Jmax)),Jmax)
     plt.show()
+    print Jmax
 
 
 run()
-print Jmax
