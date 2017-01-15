@@ -60,15 +60,33 @@ def roulette(u, distribution):
                 break
     return parents
 
+def CX(chromosom1, chromosom2):
+    chromosom1_new = [0 for i in xrange(10)]
+    chromosom1_new[0] = chromosom1[0]
+    x = 0
+    while True:
+        y = chromosom2[x]
+        for i in xrange(len(chromosom1)):
+            if chromosom1[i] == y:
+                x = i
+                break
+        if chromosom1_new[x] != 0:
+            break
+        chromosom1_new[x] = chromosom1[x]
+    for i in xrange(len(chromosom1_new)):
+        if chromosom1_new[i] == 0:
+            chromosom1_new[i] = chromosom2[i]
+    return chromosom1_new
+
 def crossover(parents):
-    childs = [[] for i in xrange(ilosc)]
+    childs = []
     for i in xrange(len(parents)/2):
-        for j in range(0,int(N/3)):
-            childs[2*i].append(parents[2*i][j])
-            childs[2*i+1].append(parents[2*i+1][j])
-        for j in range(int(N/3),N):
-            childs[2*i].append(parents[2*i+1][j])
-            childs[2*i+1].append(parents[2*i][j])
+        chromosom1 = parents[2*i]
+        chromosom2 = parents[2*i+1]
+        chromosom1_new = CX(chromosom1,chromosom2)
+        chromosom2_new = CX(chromosom2,chromosom1)
+        childs.append(chromosom1_new)
+        childs.append(chromosom2_new)
     return childs
 
 def inversion(chromosom):
