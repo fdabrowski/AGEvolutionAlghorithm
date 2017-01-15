@@ -3,19 +3,19 @@ import matplotlib.pyplot as plt
 
 N = 10
 ilosc = 100
-x1 = [[0 for i in xrange(N)] for i in xrange(ilosc)]
-x2 = [[0 for i in xrange(N)] for i in xrange(ilosc)]
-u = []
+#x1 = [[0 for i in xrange(N)] for i in xrange(ilosc)]
+#x2 = [[0 for i in xrange(N)] for i in xrange(ilosc)]
 J = []
 sum_u = []
 adaptation = []
 distribution = []
-parents = []
+
 childs = [[] for i in xrange(ilosc)]
 Jmax = []
 
 
 def prepareU():
+    u = []
     for i in range(0,ilosc):
         randomNumbers = []
         for x in range(0,N):
@@ -53,16 +53,18 @@ def calculateVariables(u):
         distribution.append(sum(adaptation))
 
 
-def roulette():
-    del parents[:]
+def roulette(u):
+    parents = []
+    #del parents[:]
     for i in range(0,ilosc):
         r = random.uniform(0,1)
         for j in xrange(len(distribution)):
             if r<=distribution[j]:
                 parents.append(u[j])
                 break
+    return parents
 
-def crossover():
+def crossover(parents):
     childs = [[] for i in xrange(ilosc)]
     for i in xrange(len(parents)/2):
         for j in range(0,int(N/3)):
@@ -75,14 +77,17 @@ def crossover():
 
 def run():
     u = prepareU()
-    for i in range(0, 1000):
+    parents = []
+    for i in range(0, 100):
         calculateVariables(u)
-        roulette()
-        childs = crossover()
+        parents = roulette(u)
+        childs = crossover(parents)
         u = childs
         Jmax.append(max(J))
+        print Jmax
     plt.plot(xrange(len(Jmax)),Jmax)
     plt.show()
 
 
 run()
+print Jmax
