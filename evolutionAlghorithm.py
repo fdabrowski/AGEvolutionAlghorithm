@@ -31,6 +31,39 @@ def prepareU():
         u.append(randomNumbers)
     return u
 
+import random
+import matplotlib.pyplot as plt
+
+N = 10
+ilosc = 100
+#x1 = [[0 for i in xrange(N)] for i in xrange(ilosc)]
+#x2 = [[0 for i in xrange(N)] for i in xrange(ilosc)]
+J = []
+sum_u = []
+adaptation = []
+distribution = []
+
+childs = [[] for i in xrange(ilosc)]
+Jmax = []
+
+
+def prepareU():
+    u = []
+    for i in range(0,ilosc):
+        randomNumbers = []
+        for x in range(0,N):
+            while True:
+                correct = True
+                randomNumber = random.randint(1,N)
+                for j in xrange(len(randomNumbers)):
+                    if randomNumber == randomNumbers[j]:
+                        correct = False
+                if correct:
+                    randomNumbers.append(randomNumber)
+                    break
+        u.append(randomNumbers)
+    return u
+
 def calculateVariables(u):
     x1 = [[0 for i in xrange(N)] for i in xrange(ilosc)]
     x2 = [[0 for i in xrange(N)] for i in xrange(ilosc)]
@@ -47,9 +80,13 @@ def calculateVariables(u):
             x2[i][k+1] = 2*x2[i][k]-x1[i][k]+ float(u[i][k])/float((N**2))
         sum_u.append(sum(uPower))
         J.append(x1[i][N-1]-(1/float(2*N))*sum_u[i])
-    sum_J = sum(J)
-    for i in xrange(len(J)):
-        adaptation.append(J[i]/sum_J)
+    mod_J = []
+    C = abs(min(J)) + 1
+    for i in J:
+        mod_J.append(i + C)
+    f = abs(sum(mod_J))
+    for i in mod_J:
+        adaptation.append(i / f)
         distribution.append(sum(adaptation))
 
 
@@ -73,6 +110,24 @@ def crossover(parents):
         for j in range(int(N/3),N):
             childs[2*i].append(parents[2*i+1][j])
             childs[2*i+1].append(parents[2*i][j])
+    return childs
+
+def run():
+    u = prepareU()
+    parents = []
+    for i in range(0, 100):
+        calculateVariables(u)
+        parents = roulette(u)
+        childs = crossover(parents)
+        u = childs
+        Jmax.append(max(J))
+        print Jmax
+    plt.plot(xrange(len(Jmax)),Jmax)
+    plt.show()
+
+
+run()
+print Jmax
     return childs
 
 def run():
