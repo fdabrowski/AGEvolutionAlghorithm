@@ -206,8 +206,10 @@ def run():
         u = childs2
         Jmax.append(max(J))
     plt.plot(xrange(len(Jmax)),Jmax)
+    plt.title("Najlepsze kryteria jakosci sterowania w kolejnych iteracjach")
+    plt.xlabel("Iteracje")
+    plt.ylabel("Jmax")
     plt.show()
     print Jmax
-
 
 run()
