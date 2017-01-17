@@ -1,7 +1,7 @@
 import random
 import matplotlib.pyplot as plt
 
-N = 10
+N = 30
 ilosc = 100
 
 
@@ -13,7 +13,7 @@ def prepareU():
         for x in range(0,N):
             while True:
                 correct = True
-                randomNumber = random.randint(1,N)
+                randomNumber = random.uniform(-N,N)
                 for j in xrange(len(randomNumbers)):
                     if randomNumber == randomNumbers[j]:
                         correct = False
@@ -59,9 +59,9 @@ def roulette(u, distribution):
                 parents.append(u[j])
                 break
     return parents
-
+'''
 def CX(chromosom1, chromosom2):
-    chromosom1_new = [0 for i in xrange(10)]
+    chromosom1_new = [0 for i in xrange(N)]
     chromosom1_new[0] = chromosom1[0]
     x = 0
     while True:
@@ -88,6 +88,17 @@ def crossover(parents):
         childs.append(chromosom1_new)
         childs.append(chromosom2_new)
     return childs
+'''
+
+def crossover(parents):
+    childs = [[] for i in xrange(ilosc)]
+    randomNumber = random.uniform(0,1)
+    for i in xrange(len(parents)/2):
+        for j in range(0,N):
+            childs[2*i].append(randomNumber*parents[2*i][j]+(1-randomNumber)*parents[2*i+1][j])
+            childs[2*i+1].append(randomNumber*parents[2*i+1][j]+(1-randomNumber)*parents[2*i][j])
+    return childs
+
 
 def inversion(chromosom):
     chromosom_new = []
@@ -102,7 +113,7 @@ def inversion(chromosom):
         b = buf
     for i in range(0,a):
         chromosom_new.append(chromosom[i])
-    iterator = 0
+    iterator = 1
     for i in range(a,b):
         chromosom_new.append(chromosom[b-iterator])
         iterator += 1
@@ -182,6 +193,14 @@ def mutation(parents):
     childs = []
     for i in xrange(len(parents)):
         chromosom = parents[i]
+        '''
+        x = random.uniform(0,1)
+        if x>0.2:
+            chromosom_new = transfer(chromosom)
+        else:
+            chromosom_new = chromosom
+
+        '''
         x = random.randint(1,4)
         if x == 1:
             chromosom_new = inversion(chromosom)
@@ -191,12 +210,15 @@ def mutation(parents):
             chromosom_new = transfer(chromosom)
         elif x == 4:
             chromosom_new = swap(chromosom)
+
+
         childs.append(chromosom_new)
     return childs
 
 
 def run():
     Jmax = []
+    Javg = []
     u = prepareU()
     for i in range(0, 100):
         distribution, J = calculateVariables(u)
@@ -205,11 +227,13 @@ def run():
         childs2 = mutation(childs)
         u = childs2
         Jmax.append(max(J))
-    plt.plot(xrange(len(Jmax)),Jmax)
+        Javg.append(sum(J)/len(J))
+    print max(Jmax)
+    plt.plot(xrange(len(Jmax)), Jmax, 'r')
+    plt.plot(xrange(len(Javg)), Javg, 'b')
     plt.title("Najlepsze kryteria jakosci sterowania w kolejnych iteracjach")
     plt.xlabel("Iteracje")
     plt.ylabel("Jmax")
     plt.show()
-    print Jmax
 
 run()
